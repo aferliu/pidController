@@ -1,7 +1,7 @@
 #ifndef GENERAL_PID_H
 #define GENERAL_PID_H
 
-#define PID_LIBRARY_VERSION 0.0.1
+#define PID_LIBRARY_VERSION 0.0.2
 
 /*
 * The controller mode is divided into automatic and manual mode
@@ -50,9 +50,9 @@ typedef struct
 
     ControlType pOn; // holding in to tuning parameters in user-entered.
 
-    double *myInput;          // Sensor measurement value.
-    double *myOutput;         // Output value calculated by the controller.
-    double *mySetpoint;       // Expected value of controller setting
+    double myInput;          // Sensor measurement value.
+    double myOutput;         // Output value calculated by the controller.
+    double mySetpoint;       // Expected value of controller setting
 
     unsigned long lastTime;   // The time when the controller wa entered.
     double outputSum;         // Total historical points.
@@ -68,17 +68,16 @@ typedef struct
                   note: P_ON_E will smoothly when the setpoint is changed. */
 } G_PID;
 
-void GPIDInit(G_PID *pid, double *input, double *output, double *setpoint,
-              double kp, double ki, double kd, int controllerDirection, int pOn);
-void GPIDInitBasic(G_PID *pid, double *input, double *output, double *setpoint,
-                   double kp, double ki, double kd, int controllerDirection);
+void GPIDInit(G_PID *pid,
+              double kp, double ki, double kd, ControlType POn, 
+              ControlDirection ControllerDirection, double Min, double Max, int SampleTime);
 
-void GPIDSetMode(G_PID *pid, int Mode);
-int GPIDCompute(G_PID *pid);
+void GPIDSetMode(G_PID *pid, ControlMode Mode);
+int GPIDCompute(G_PID *pid, unsigned long nowUs);
 void GPIDSetOutputLimits(G_PID *pid, double min, double max);
 void GPIDSetTunings(G_PID *pid, double kp, double ki, double kd);
-void GPIDSetTuningsEx(G_PID *pid, double kp, double ki, double kd, int pOn);
-void GPIDSetControllerDirection(G_PID *pid, int Direction);
+void GPIDSetTuningsEx(G_PID *pid, double kp, double ki, double kd, ControlType pOn);
+void GPIDSetControllerDirection(G_PID *pid, ControlDirection Direction);
 void GPIDSetSampleTime(G_PID *pid, int NewSampleTime);
 
 double GPIDGetKp(G_PID *pid);

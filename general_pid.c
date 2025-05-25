@@ -2,12 +2,14 @@
 
 static void Initialize(G_PID *pid);
 
-void GPIDInit(G_PID *pid, double *input, double *output, double *setpoint,
-              double kp, double ki, double kd, ControlType POn, ControlDirection ControllerDirection, double Min, double Max, int SampleTime)
+void GPIDInit(G_PID *pid,
+              double kp, double ki, double kd, ControlType POn, 
+              ControlDirection ControllerDirection, double Min, double Max, 
+              int SampleTime)
 {
-    pid->myInput = input;
-    pid->myOutput = output;
-    pid->mySetpoint = setpoint;
+    pid->myInput = 0;
+    pid->myOutput = 0;
+    pid->mySetpoint = 0;
 
     pid->kp = kp;
     pid->ki = ki;
@@ -39,16 +41,17 @@ int GPIDCompute(G_PID *pid, unsigned long nowUs)
     unsigned long timeChange = now - pid->lastTime;
     if (timeChange > pid->SampleTime)
     {
-        double input = *pid->myInput;
-        double error = *pid->mySetpoint - input;
+        double input = pid->myInput;
+        double error = pid->mySetpoint - input;
         double dinput = (input - pid->lastInput);
+        double output = 0;
+
         pid->outputSum += pid->ki * error;
 
         if (!pid->pOnE) pid->outputSum -= pid->kp * dinput;
         if (pid->outputSum > pid->outMax) pid->outputSum = pid->outMax;
         else if (pid->outputSum < pid->outMin) pid->outputSum = pid->outMin;
 
-        double output;
         if (pid->pOnE) output = pid->kp * error;
         else output = 0;
 
@@ -56,7 +59,7 @@ int GPIDCompute(G_PID *pid, unsigned long nowUs)
 
         if (output > pid->outMax) output = pid->outMax;
         else if (output < pid->outMin) output = pid->outMin;
-        *pid->myOutput = output;
+        pid->myOutput = output;
 
         pid->lastInput = input;
         pid->lastTime = now;
@@ -73,8 +76,8 @@ void GPIDSetOutputLimits(G_PID *pid, double Min, double Max)
 
     if (pid->inAuto)
     {
-        if (*pid->myOutput > pid->outMax) *pid->myOutput = pid->outMax;
-        else if (*pid->myOutput < pid->outMin) *pid->myOutput = pid->outMin;
+        if (pid->myOutput > pid->outMax) pid->myOutput = pid->outMax;
+        else if (pid->myOutput < pid->outMin) pid->myOutput = pid->outMin;
 
         if (pid->outputSum > pid->outMax) pid->outputSum = pid->outMax;
         else if (pid->outputSum < pid->outMin) pid->outputSum = pid->outMin;
@@ -83,7 +86,7 @@ void GPIDSetOutputLimits(G_PID *pid, double Min, double Max)
 
 void GPIDSetTunings(G_PID *pid, double kp, double ki, double kd)
 {
-    GPIDSetTuningsEx(kp, kd, ki, pid->pOn);
+    GPIDSetTuningsEx(pid, kp, kd, ki, pid->pOn);
 }
 
 void GPIDSetTuningsEx(G_PID *pid, double kp, double ki, double kd, ControlType pOn)
@@ -132,8 +135,8 @@ void GPIDSetSampleTime(G_PID *pid, int NewSampleTime)
 
 static void Initialize(G_PID *pid)
 {
-    pid->outputSum = *pid->myOutput;
-    pid->lastInput = *pid->myInput;
+    pid->outputSum = pid->myOutput;
+    pid->lastInput = pid->myInput;
 
     if (pid->outputSum > pid->outMax)
         pid->outputSum = pid->outMax;
