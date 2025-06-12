@@ -1,7 +1,7 @@
 #ifndef GENERAL_PID_H
 #define GENERAL_PID_H
 
-#define PID_LIBRARY_VERSION 0.0.2
+#define PID_LIBRARY_VERSION 0.0.3
 
 /*
 * The controller mode is divided into automatic and manual mode

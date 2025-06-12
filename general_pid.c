@@ -16,6 +16,7 @@ void GPIDInit(G_PID *pid,
     pid->kd = kd;
 
     pid->pOn = POn;
+    pid->pOnE = POn;
     pid->controllerDirection = ControllerDirection;
 
     pid->outMin = Min;
