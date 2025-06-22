@@ -11,18 +11,18 @@ void GPIDInit(G_PID *pid,
     pid->myOutput = 0;
     pid->mySetpoint = 0;
 
-    pid->kp = kp;
-    pid->ki = ki;
-    pid->kd = kd;
-
     pid->pOn = POn;
     pid->pOnE = POn;
+
     pid->controllerDirection = ControllerDirection;
+    GPIDSetTunings(pid, kp, ki, kd);
 
     pid->outMin = Min;
     pid->outMax = Max;
 
     pid->SampleTime = SampleTime;
+
+    GPIDSetMode(pid, GPID_AUTOMATIC);
 }
 
 void GPIDSetMode(G_PID *pid, ControlMode Mode)
